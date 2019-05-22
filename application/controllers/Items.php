@@ -799,8 +799,8 @@ class Items extends Secure_Controller
 	public function excel()
 	{
 		$name = 'import_items.csv';
-		$data = file_get_contents('../' . $name);
-		force_download($name, $data);
+		$data = generate_import_items_csv($this->Stock_location->get_allowed_locations(),$this->Attribute->get_definition_names(FALSE));
+		force_download($name, $data, TRUE);
 	}
 	
 	public function excel_import()
@@ -893,6 +893,7 @@ class Items extends Secure_Controller
 			}
 		}
 	}
+	
 	/**
 	 * @param line
 	 * @param failCodes
@@ -904,7 +905,7 @@ class Items extends Secure_Controller
 		
 		foreach($definition_names as $definition_name)
 		{
-			if(!empty('attribute_' . $line[$definition_name]))
+			if(!empty($line['attribute_' . $definition_name]))
 			{
 				//Create attribute value
 				$attribute_data = $this->Attribute->get_definition_by_name($definition_name);

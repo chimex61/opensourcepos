@@ -126,11 +126,6 @@ class Stock_location extends CI_Model
 			
 			$this->db->trans_complete();
 			
-			if($this->db->trans_status())
-			{
-				add_import_file_column('location_' . $location_name,'../import_items.csv', TRUE);
-			}
-			
 			return $this->db->trans_status();
 		}
 		
@@ -144,8 +139,6 @@ class Stock_location extends CI_Model
 			$this->_insert_new_permission('items', $location_id, $location_name);
 			$this->_insert_new_permission('sales', $location_id, $location_name);
 			$this->_insert_new_permission('receivings', $location_id, $location_name);
-			
-			rename_import_file_column('location_' . $original_location_name, 'location_' . $location_name, '../import_items.csv');
 		}
 		
 		$this->db->where('location_id', $location_id);
@@ -186,11 +179,6 @@ class Stock_location extends CI_Model
 		$this->db->delete('permissions');
 		
 		$this->db->trans_complete();
-		
-		if($this->db->trans_status())
-		{
-			delete_import_file_column('location_' . $this->get_location_name($location_id),'../import_items.csv');
-		}
 		
 		return $this->db->trans_status();
 	}

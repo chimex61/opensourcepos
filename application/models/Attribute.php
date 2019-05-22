@@ -189,10 +189,23 @@ class Attribute extends CI_Model
 		return $this->_to_array($results, 'definition_id', 'definition_name');
 	}
 	
-	public function get_definition_names()
+	
+	/**
+	 * Returns an array of attribute definition names and IDs
+	 *
+	 * @param 	boolean		$groups		If FALSE does not return GROUP type attributes in the array
+	 * @return	array					Array containing definition IDs, attribute names and -1 index with the local language '[SELECT]' line.
+	 */
+	public function get_definition_names($groups = TRUE)
 	{
 		$this->db->from('attribute_definitions');
 		$this->db->where('deleted', 0);
+		
+		if($groups === FALSE)
+		{
+			$this->db->where_not_in('definition_type',GROUP);
+		}
+		
 		$results = $this->db->get()->result_array();
 		
 		$definition_name = array(-1 => $this->lang->line('common_none_selected_text'));
@@ -351,11 +364,6 @@ class Attribute extends CI_Model
 		{
 			$success = $this->db->insert('attribute_definitions', $definition_data);
 			$definition_data['definition_id'] = $this->db->insert_id();
-			
-			if($definition_data['definition_type'] !== GROUP && $success == TRUE)
-			{
-				$success = add_import_file_column('attribute_' . $definition_data['definition_name'], '../import_items.csv');
-			}
 		}
 		
 		//Definition already exists
@@ -377,12 +385,6 @@ class Attribute extends CI_Model
 					return FALSE;
 				}
 			}
-			
-			if($from_definition_name !== $definition_data['definition_name'])
-			{
-				$success = rename_import_file_column('attribute_' . $from_definition_name,'attribute_' . $definition_data['definition_name'], '../import_items.csv');
-			}
-			
 			
 			$this->db->where('definition_id', $definition_id);
 			$success = $this->db->update('attribute_definitions', $definition_data);
@@ -596,8 +598,6 @@ class Attribute extends CI_Model
 		$this->db->from('attribute_definitions');
 		$this->db->where('definition_id',$definition_id);
 		
-		$success = delete_import_file_column('attribute_' . $this->db->get()->row()->definition_name, '../import_items.csv');
-		
 		$this->db->where('definition_id', $definition_id);
 		return $this->db->update('attribute_definitions', array('deleted' => 1));
 	}
@@ -610,8 +610,6 @@ class Attribute extends CI_Model
 			$this->db->select('definition_name');
 			$this->db->from('attribute_definitions');
 			$this->db->where('definition_id',$definition_id);
-			
-			$success = delete_import_file_column('attribute_' . $this->db->get()->row()->definition_name, '../import_items.csv');
 		}
 		
 		$this->db->where_in('definition_id', $definition_ids);
