@@ -843,11 +843,10 @@ class Items extends Secure_Controller
 							'supplier_id'			=> $this->Supplier->exists($line['Supplier ID']) ? $line['Supplier ID'] : NULL,
 							'allow_alt_description'	=> $line['Allow Alt Description'] != '' ? '1' : '0',
 							'is_serialized'			=> $line['Item has Serial Number'] != '' ? '1' : '0',
-							'hsn_code'				=> $line['HSN']
+							'hsn_code'				=> $line['HSN'],
+							'pic_filename'			=> $line['item_image']
 						);
 						
-						$pic_file 					= $line['item_image'];
-						$item_data['pic_filename']	= $pic_file;
 						$item_number 				= $line['Barcode'];
 						$invalidated 				= FALSE;
 						
@@ -865,9 +864,9 @@ class Items extends Secure_Controller
 					//Save row into database
 					if(!$invalidated && $this->Item->save($item_data))
 					{
-						$this->save_tax_data($line);
+						$this->save_tax_data($line, $item_data);
 						$this->save_inventory_quantities($line, $item_data);
-						$this->save_attribute_data($line);
+						$this->save_attribute_data($line, $item_data);
 					}
 					
 					else //insert or update item failure
@@ -899,7 +898,7 @@ class Items extends Secure_Controller
 	 * @param failCodes
 	 * @param attribute_data
 	 */
-	private function save_attribute_data($line)
+	private function save_attribute_data($line, $item_data)
 	{
 		$definition_names = $this->Attribute->get_definition_names();
 		
@@ -908,9 +907,8 @@ class Items extends Secure_Controller
 			if(!empty($line['attribute_' . $definition_name]))
 			{
 				//Create attribute value
-				$attribute_data = $this->Attribute->get_definition_by_name($definition_name);
-				//TODO: Right now definition_id is sending through as null and so is the item_id which should not be happening.
-				$this->Attribute->save_value('attribute_' . $line[$definition_name],$attribute_data['definition_id'],$item_data['item_id'], FALSE, $attribute_data['definition_type']);
+				$attribute_data = $this->Attribute->get_definition_by_name($definition_name)[0];
+				$this->Attribute->save_value($line['attribute_' . $definition_name], $attribute_data['definition_id'], $item_data['item_id'], FALSE, $attribute_data['definition_type']);
 			}
 		}
 	}
@@ -927,7 +925,6 @@ class Items extends Secure_Controller
 		$employee_id		= $this->Employee->get_logged_in_employee_info()->person_id;
 		$emp_info			= $this->Employee->get_info($employee_id);
 		$comment			= 'Quantity Imported from CSV';
-		//TODO: Right now location_id is coming through as NULL and we need to figure out why.
 		$allowed_locations	= $this->Stock_location->get_allowed_locations();
 		
 		foreach($allowed_locations as $location_id => $location_name)
@@ -945,7 +942,7 @@ class Items extends Secure_Controller
 					'trans_items' => $item_data['item_id'],
 					'trans_user' => $employee_id,
 					'trans_comment' => $comment,
-					'trans_location' => $line[$location_id],
+					'trans_location' => $location_id,
 					'trans_inventory' => $line['location_' . $location_name]
 				);
 				
@@ -978,9 +975,9 @@ class Items extends Secure_Controller
 	 *
 	 * @param	array	line
 	 */
-	private function save_tax_data($line)
+	private function save_tax_data($line, $item_data)
 	{
-		$items_taxes_data = NULL;
+		$items_taxes_data = array();
 		
 		if(is_numeric($line['Tax 1 Percent']) && $line['Tax 1 Name'] != '')
 		{

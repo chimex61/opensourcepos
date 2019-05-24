@@ -49,4 +49,32 @@ function generate_attribute_headers($attribute_names)
 	
 	return $attribute_headers;
 }
+
+/**
+ * Read the contents of a given CSV formatted file into a two-dimensional array
+ *
+ * @param	string				$file_name	Name of the file to read.
+ * @return	boolean|array[][]				two-dimensional array with the file contents or FALSE on failure.
+ */
+function get_csv_file($file_name)
+{
+	ini_set("auto_detect_line_endings", true);
+	
+	if(($csv_file = fopen($file_name,'r')) !== FALSE)
+	{
+		//Skip Byte-Order Mark
+		fseek($csv_file, 3);
+		
+		while (($data = fgetcsv($csv_file)) !== FALSE)
+		{
+			$line_array[] = $data;
+		}
+	}
+	else
+	{
+		return FALSE;
+	}
+	
+	return $line_array;
+}
 ?>
