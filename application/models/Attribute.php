@@ -593,25 +593,13 @@ class Attribute extends CI_Model
 	 */
 	public function delete_definition($definition_id)
 	{
-		//Get the name of the column to remove
-		$this->db->select('definition_name');
-		$this->db->from('attribute_definitions');
-		$this->db->where('definition_id',$definition_id);
-		
 		$this->db->where('definition_id', $definition_id);
+		
 		return $this->db->update('attribute_definitions', array('deleted' => 1));
 	}
 	
 	public function delete_definition_list($definition_ids)
 	{
-		foreach($definition_ids as $definition_id)
-		{
-			//Get the name of the column to remove
-			$this->db->select('definition_name');
-			$this->db->from('attribute_definitions');
-			$this->db->where('definition_id',$definition_id);
-		}
-		
 		$this->db->where_in('definition_id', $definition_ids);
 		
 		return $this->db->update('attribute_definitions', array('deleted' => 1));
