@@ -813,8 +813,6 @@ class Items extends Secure_Controller
 	 */
 	public function do_excel_import()
 	{
-		//		$non_repeating_element_count = 18; Is this still needed?
-		
 		if($_FILES['file_path']['error'] != UPLOAD_ERR_OK)
 		{
 			echo json_encode(array('success' => FALSE, 'message' => $this->lang->line('items_excel_import_failed')));
