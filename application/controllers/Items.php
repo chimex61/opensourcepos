@@ -924,7 +924,7 @@ class Items extends Secure_Controller
 		//Quantities & Inventory Section
 		$employee_id		= $this->Employee->get_logged_in_employee_info()->person_id;
 		$emp_info			= $this->Employee->get_info($employee_id);
-		$comment			= 'Quantity Imported from CSV';
+		$comment			= $this->lang->line['items_inventory_CSV_import_quantity'];
 		$allowed_locations	= $this->Stock_location->get_allowed_locations();
 		
 		foreach($allowed_locations as $location_id => $location_name)

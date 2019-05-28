@@ -1,6 +1,7 @@
-<?php 
+<?php
 
 $lang["items_add_minus"] = "Inventory to add or subtract.";
+$lang["items_allow_alt_desciption"] = "";
 $lang["items_allow_alt_description"] = "Allow Alternate Description";
 $lang["items_amount_entry"] = "Amount Entry";
 $lang["items_bulk_edit"] = "Bulk Edit";
@@ -43,6 +44,7 @@ $lang["items_import_items_excel"] = "Item Import from Excel";
 $lang["items_info_provided_by"] = "Information provided by";
 $lang["items_inventory"] = "Inventory";
 $lang["items_inventory_comments"] = "Comments";
+$lang["items_inventory_CSV_import_quantity"] = "Quantity Imported from CSV";
 $lang["items_inventory_data_tracking"] = "Inventory Data Tracking";
 $lang["items_inventory_date"] = "Date";
 $lang["items_inventory_employee"] = "Employee";
@@ -83,6 +85,7 @@ $lang["items_retrive_item_info"] = "Retrive Item Info";
 $lang["items_sales_tax_1"] = "Sales Tax";
 $lang["items_sales_tax_2"] = "Sales Tax 2";
 $lang["items_search_attributes"] = "Search Attributes";
+$lang["items_search_custom_items"] = "";
 $lang["items_select_image"] = "Select Image";
 $lang["items_serialized_items"] = "Serialized Items";
 $lang["items_standard"] = "Standard";
