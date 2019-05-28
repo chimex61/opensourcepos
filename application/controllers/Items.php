@@ -799,7 +799,9 @@ class Items extends Secure_Controller
 	public function excel()
 	{
 		$name = 'import_items.csv';
-		$data = generate_import_items_csv($this->Stock_location->get_allowed_locations(),$this->Attribute->get_definition_names(FALSE));
+		$allowed_locations = $this->Stock_location->get_allowed_locations();
+		$allowed_attributes = $this->Attribute->get_definition_names(FALSE);
+		$data = generate_import_items_csv($allowed_locations,$allowed_attributes);
 		force_download($name, $data, TRUE);
 	}
 	
@@ -927,42 +929,32 @@ class Items extends Secure_Controller
 		
 		foreach($allowed_locations as $location_id => $location_name)
 		{
+			$item_quantity_data = array(
+				'item_id' => $item_data['item_id'],
+				'location_id' => $location_id
+			);
+			
+			$excel_data = array(
+				'trans_items' => $item_data['item_id'],
+				'trans_user' => $employee_id,
+				'trans_comment' => $comment,
+				'trans_location' => $location_id,
+			);
+			
 			if(!empty($line['location_' . $location_name]))
 			{
-				$item_quantity_data = array(
-					'item_id' => $item_data['item_id'],
-					'location_id' => $location_id,
-					'quantity' => $line['location_' . $location_name],
-				);
+				$item_quantity_data['quantity'] = $line['location_' . $location_name];
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $location_id);
 				
-				$excel_data = array(
-					'trans_items' => $item_data['item_id'],
-					'trans_user' => $employee_id,
-					'trans_comment' => $comment,
-					'trans_location' => $location_id,
-					'trans_inventory' => $line['location_' . $location_name]
-				);
-				
+				$excel_data['trans_inventory'] = $line['location_' . $location_name];
 				$this->Inventory->insert($excel_data);
 			}
 			else
 			{
-				$item_quantity_data = array(
-					'item_id' => $item_data['item_id'],
-					'location_id' => $location_id,
-					'quantity' => 0
-				);
+				$item_quantity_data['quantity'] = 0;
 				$this->Item_quantity->save($item_quantity_data, $item_data['item_id'], $line[$col]);
 				
-				$excel_data = array(
-					'trans_items' => $item_data['item_id'],
-					'trans_user' => $employee_id,
-					'trans_comment' => $comment,
-					'trans_location' => $location_id,
-					'trans_inventory' => 0
-				);
-				
+				$excel_data['trans_inventory'] = 0;
 				$this->Inventory->insert($excel_data);
 			}
 		}
